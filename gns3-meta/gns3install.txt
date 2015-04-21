@@ -1,0 +1,10 @@
+# Unzip Files
+
+unzip GNS3
+unzip dynamips, gui, server, iouyap, vpcs
+
+
+# Manuals
+http://www.firstdigest.com/2014/12/gns3-1-2-1-installation-on-ubuntu-14-04/
+http://musaamin.web.id/cara-install-gns3-1-3-1-di-ubuntu-14-04/
+

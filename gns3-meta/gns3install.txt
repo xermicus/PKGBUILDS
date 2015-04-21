@@ -1,7 +1,20 @@
+# These are my personal install notes for GNS3
+
 # Unzip Files
 
 unzip GNS3
 unzip dynamips, gui, server, iouyap, vpcs
+
+
+# Dependencies
+unzip python3 python-jsonschema python-dateutil python-jinja apache-libcloud paramiko python-paramiko python-requests (raven) (aiohttp) (python2-netifaces) (python-pyqt4)
+
+# Build deps
+python-setuptools cmake
+
+# Opt deps
+wireshark-gtk
+
 
 
 # Manuals

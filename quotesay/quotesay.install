@@ -4,8 +4,4 @@ post_install() {
 	echo "echo" >> /etc/bash.bashrc
 }
 
-post_upgrade() {
-        echo "shuf -n1 ~/.quotes | cowsay" >> /etc/bash.bashrc
-        echo "echo" >> /etc/bash.bashrc
-}
 

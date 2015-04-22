@@ -1,6 +1,6 @@
 # Maintainer: Cyrill Leutwiler <bigcyrill@hotmail.com>
 pkgname=quotesay
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 epoch=
 pkgdesc="Installs quotes for cowsay (bash only)"
@@ -8,7 +8,7 @@ arch=('i686' 'x86_64')
 url="foo.bar"
 license=('GPL')
 depends=('cowsay')
-backup=('etc/bash.bashrc')
+# backup=('etc/bash.bashrc')
 install=quotesay.install
 source=("quotes")
 noextract=("quotes")
@@ -18,5 +18,5 @@ md5sums=('3ccea5d77ec4ea9c07c4137a89f34295')
 package() {
 	#cd "$pkgname-$pkgver"
 	#make DESTDIR="$pkgdir/" install
-	cp quotes ~/.quotes
+	cp $srcdir/quotes $pkgdir/etc/quotes
 }

@@ -13,24 +13,51 @@ python3 python-jsonschema python-dateutil python-jinja apache-libcloud python-pa
 pip install raven --upgrade
 pip install aiohttp
 https://github.com/kelleyk/py3k-netifaces:
-  python setup.py install
+  python3 setup.py install
 
 # - Build deps
-unzip python-setuptools python-pip cmake
+unzip python-setuptools python-pip cmake flex bison curl
 
 # - Opt deps
 wireshark-gtk
 virtualbox-gtk
+xterm
 
-
-
-# dynamips
+# Komponenten:
+# - dynamips
 cd dynamips-0.2.14
 mkdir build
 cd build
 cmake ..
 make
 sudo make install
+
+# - GNS3 Server und GUI
+python3 setup.py install
+
+# - iouyap
+cd /tmp
+curl -L https://github.com/ndevilla/iniparser/archive/master.tar.gz | tar -xz
+cd iniparser*
+make
+curl -L https://github.com/GNS3/iouyap/archive/master.tar.gz | tar -xz
+cd iouyap*
+bison -ydv netmap_parse.y
+flex netmap_scan.l
+gcc -Wall *.c -I /tmp/iniparser*/src -L /tmp/iniparser* -o iouyap -liniparser -lpthread
+strip --strip-unneeded iouyap
+sudo mv iouyap /usr/local/bin
+
+# - VPCs
+cd "${srcdir}/${pkgname}-${pkgver}/src"
+# fix the makefile hardcoding i386
+if test "$CARCH" == x86_64; then
+  sed -i "s/i386/x86_64/" Makefile.linux
+fi
+# fix the makefile forcing a static binary
+sed -i "s/-s -static//" Makefile.linux
+make -f ./Makefile.linux
+
 
 # Tutorials
 http://www.firstdigest.com/2014/12/gns3-1-2-1-installation-on-ubuntu-14-04/

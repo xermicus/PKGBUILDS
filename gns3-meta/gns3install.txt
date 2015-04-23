@@ -1,23 +1,38 @@
 # These are my personal install notes for GNS3
 
-# Unzip Files
+# Download Source
+https://github.com/GNS3/gns3-gui/releases/download/v1.3.1/GNS3-1.3.1.source.zip
 
+# Unzip Files
 unzip GNS3
 unzip dynamips, gui, server, iouyap, vpcs
 
-
 # Dependencies
-unzip python3 python-jsonschema python-dateutil python-jinja apache-libcloud paramiko python-paramiko python-requests (raven) (aiohttp) (python2-netifaces) (python-pyqt4)
+python3 python-jsonschema python-dateutil python-jinja apache-libcloud python-paramiko python-requests python-pyqt4
+# Install Python dependencies
+pip install raven --upgrade
+pip install aiohttp
+https://github.com/kelleyk/py3k-netifaces:
+  python setup.py install
 
-# Build deps
-python-setuptools cmake
+# - Build deps
+unzip python-setuptools python-pip cmake
 
-# Opt deps
+# - Opt deps
 wireshark-gtk
+virtualbox-gtk
 
 
 
-# Manuals
+# dynamips
+cd dynamips-0.2.14
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
+# Tutorials
 http://www.firstdigest.com/2014/12/gns3-1-2-1-installation-on-ubuntu-14-04/
 http://musaamin.web.id/cara-install-gns3-1-3-1-di-ubuntu-14-04/
 

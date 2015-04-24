@@ -48,14 +48,14 @@ prepare() {
 		flex netmap_scan.l
 
 	# vpcs
-		cd "$srcdir/vpcs-0.6/"
+		cd "$srcdir/vpcs-0.6/src"
 		# fix the makefile hardcoding i386
 		if test "$CARCH" == x86_64; then
 			sed -i "s/i386/x86_64/" Makefile.linux
 		fi
 		# fix the makefile forcing a static binary
 		sed -i "s/-s -static//" Makefile.linux
-	}
+}
 
 build() {
 	# iniparser
@@ -64,6 +64,9 @@ build() {
 
 	# dynamips
 		cd "$srcdir/dynamips-0.2.14"
+		if [ -d "build" ]; then
+		  rm -R build
+		fi
 		mkdir build
 		cd build
 		cmake ..
@@ -73,11 +76,11 @@ build() {
 		cd "$srcdir/iouyap-0.95"
 		bison -ydv netmap_parse.y
 		flex netmap_scan.l
-		gcc -Wall *.c -I /tmp/iniparser*/src -L  $srcdir/iniparser-master -o iouyap -liniparser -lpthread
+		gcc -Wall *.c -I "${srcdir}/iniparser-master/src" -L "${srcdir}/iniparser-master" -o iouyap -liniparser -lpthread
 		strip --strip-unneeded iouyap
 
 	# vpcs
-		cd "$srcdir/vpcs-0.6"
+		cd "$srcdir/vpcs-0.6/src"
 		make -f ./Makefile.linux
 }
 
@@ -99,7 +102,7 @@ package() {
 		
 	# python-aiohttp
 		cd "$srcdir/aiohttp-0.15.1"
-		python setup.py install --root="$pkgdir" --optimize=1 || return 1
+		python setup.py install --root="${pkgdir}" --optimize=1 || return 1
 
 	# gns3-server
 		cd "$srcdir/gns3-server-1.3.1"
@@ -115,20 +118,18 @@ package() {
 		install -Dm644 ./LICENSE "${pkgdir}/usr/share/licenses/gns3-gui/LICENSE"
 	
 	# dynamips
-		cd "${srcdir}/dynamips-0.2.14"
+		cd "${srcdir}/dynamips-0.2.14/build"
 		make DESTDIR="${pkgdir}" install
-		install -Dm644 COPYING "${pkgdir}/usr/share/licenses/dynamips/COPYING"
+		install -Dm644 "${srcdir}/dynamips-0.2.14/COPYING" "${pkgdir}/usr/share/licenses/dynamips/COPYING"
 
 	# iouyap
 		cd "${srcdir}/iouyap-0.95"
-		make DESTDIR="${pkgdir}" install
+		mv iouyap "${pkgdir}/usr/local/bin"
 		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
 	# vpcs
-		cd "$srcdir/vpcs-0.6
-		cp vpcs ${pkgdir}/usr/bin/
+		cd "$srcdir/vpcs-0.6/src"
+		mv vpcs "${pkgdir}/usr/bin/"
 		install -D -m 0644 "${srcdir}/vpcs-0.6/readme.txt" "${pkgdir}/usr/share/vpcs/readme.txt"
 		install -D -m 0644 "${srcdir}/vpcs-0.6/COPYING" "${pkgdir}/usr/share/licenses/vpcs/COPYING"
-
 }
-

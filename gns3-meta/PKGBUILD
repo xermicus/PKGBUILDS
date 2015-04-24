@@ -2,7 +2,7 @@
 pkgname=gns3-meta
 pkgver=1.3.1
 pkgrel=1
-pkgdesc="Installs *everything* you need to get started with GNS3 (this includes gns3-server, gns3-gui, dynamips, iouyap and dependencies for python)."
+pkgdesc="This metapackage installs *everything* you need to get started with GNS3. GNS3 is a Graphical Network Simulator"
 arch=(x86_64)
 url="http://www-gns3.com"
 license=('GPL')
@@ -25,7 +25,9 @@ source=("dynamips-0.2.14.zip"
 	"iniparser-master.tar.gz"
 	"aiohttp-0.15.1.tar.gz"
 	"netifaces-0.10.4.tar.gz"
-	"raven-5.2.0.tar.gz")
+	"raven-5.2.0.tar.gz"
+	"gns3-server@.service"
+	"gns3.desktop")
 md5sums=(	'0b60dd335e1562a6841014a54df2b090'
 		'4f67fbc60828e69a948b0df0a5778afb'
 		'b2745a041f225803358c0cc88b44e521'
@@ -34,40 +36,49 @@ md5sums=(	'0b60dd335e1562a6841014a54df2b090'
 		'bc38d61a9b01ead6d0abaa543bda135b'
 		'd8034fcee1e9f286e811b77055688474'
 		'36da76e2cfadd24cc7510c2c0012eb1e'
-		'a9964f0ddf01dda0f426b215d37ee9b5')
+		'a9964f0ddf01dda0f426b215d37ee9b5'
+		'f602390385890dab14f68e5e0a8cac2d'
+		'ac6ba60be0a1cb7fc965d1a105e431d5')
 validpgpkeys=()
 
 prepare() {
 	# iouyap
-	cd $srcdir/iouyap-0.95/
-	bison -ydv netmap_parse.y
-	flex netmap_scan.l
+		cd "$srcdir/iouyap-0.95/"
+		bison -ydv netmap_parse.y
+		flex netmap_scan.l
 
 	# vpcs
-	cd $srcdir/vpcs-0.6/
-	# fix the makefile hardcoding i386
-	if test "$CARCH" == x86_64; then
-		sed -i "s/i386/x86_64/" Makefile.linux
-	fi
-	# fix the makefile forcing a static binary
-	sed -i "s/-s -static//" Makefile.linux
+		cd "$srcdir/vpcs-0.6/"
+		# fix the makefile hardcoding i386
+		if test "$CARCH" == x86_64; then
+			sed -i "s/i386/x86_64/" Makefile.linux
+		fi
+		# fix the makefile forcing a static binary
+		sed -i "s/-s -static//" Makefile.linux
 	}
 
 build() {
 	# iniparser
-	cd $srcdir/iniparser-master
-	make
+		cd "$srcdir/iniparser-master"
+		make
 
 	# dynamips
-	cd $srcdir/
-	./configure --prefix=/usr
-	make
+		cd "$srcdir/dynamips-0.2.14"
+		mkdir build
+		cd build
+		cmake ..
+		make
 
 	# iouyap
-
+		cd "$srcdir/iouyap-0.95"
+		bison -ydv netmap_parse.y
+		flex netmap_scan.l
+		gcc -Wall *.c -I /tmp/iniparser*/src -L  $srcdir/iniparser-master -o iouyap -liniparser -lpthread
+		strip --strip-unneeded iouyap
 
 	# vpcs
-	
+		cd "$srcdir/vpcs-0.6"
+		make -f ./Makefile.linux
 }
 
 #check() {
@@ -91,17 +102,33 @@ package() {
 		python setup.py install --root="$pkgdir" --optimize=1 || return 1
 
 	# gns3-server
+		cd "$srcdir/gns3-server-1.3.1"
+		python setup.py install --root="${pkgdir}" --optimize=1
+		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+		install -Dm644 "${srcdir}/gns3-server@.service" "${pkgdir}/usr/lib/systemd/system/gns3-server@.service"
 
 	# gns3-gui
-
+		cd "${srcdir}/gns3-gui-1.3.1"
+		python setup.py install --root="${pkgdir}" --optimize=1
+		install -Dm644 "${srcdir}/gns3.desktop" "${pkgdir}/usr/share/applications/gns3.desktop"
+		install -Dm644 ./resources/images/gns3_icon_256x256.png "${pkgdir}/usr/share/pixmaps/gns3.png"
+		install -Dm644 ./LICENSE "${pkgdir}/usr/share/licenses/gns3-gui/LICENSE"
+	
 	# dynamips
+		cd "${srcdir}/dynamips-0.2.14"
+		make DESTDIR="${pkgdir}" install
+		install -Dm644 COPYING "${pkgdir}/usr/share/licenses/dynamips/COPYING"
 
 	# iouyap
+		cd "${srcdir}/iouyap-0.95"
+		make DESTDIR="${pkgdir}" install
+		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
 	# vpcs
+		cd "$srcdir/vpcs-0.6
+		cp vpcs ${pkgdir}/usr/bin/
+		install -D -m 0644 "${srcdir}/vpcs-0.6/readme.txt" "${pkgdir}/usr/share/vpcs/readme.txt"
+		install -D -m 0644 "${srcdir}/vpcs-0.6/COPYING" "${pkgdir}/usr/share/licenses/vpcs/COPYING"
 
-
-	cd "$pkgname-$pkgver"
-	make DESTDIR="$pkgdir/" install
 }
 

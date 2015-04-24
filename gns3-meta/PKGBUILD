@@ -10,7 +10,7 @@ groups=()
 depends=('python3' 'python-jsonschema' 'python-dateutil' 'python-jinja' 'apache-libcloud' 'python-paramiko' 'python-requests' 'python-pyqt4')
 makedepends=('python-setuptools' 'python-pip' 'cmake' 'flex' 'bison')
 optdepends=('wireshark-gtk' 'virtualbox-gtk' 'xterm')
-provides=('gns3-server' 'gns3-gui' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces')
+provides=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud')
 conflicts=()
 replaces=('gns3-git')
 backup=()
@@ -26,6 +26,9 @@ source=("dynamips-0.2.14.zip"
 	"aiohttp-0.15.1.tar.gz"
 	"netifaces-0.10.4.tar.gz"
 	"raven-5.2.0.tar.gz"
+	"gns3-converter-1.2.3.tar.gz"
+	"apache-libcloud-0.17.0.tar.gz"
+	"libcloud.patch"
 	"gns3-server@.service"
 	"gns3.desktop")
 md5sums=(	'0b60dd335e1562a6841014a54df2b090'
@@ -37,6 +40,9 @@ md5sums=(	'0b60dd335e1562a6841014a54df2b090'
 		'd8034fcee1e9f286e811b77055688474'
 		'36da76e2cfadd24cc7510c2c0012eb1e'
 		'a9964f0ddf01dda0f426b215d37ee9b5'
+		'ca83b0fbad203ab92533bacaf3596c20'
+		'a63650261971dc82c5a6d763a2153881'
+		'b210ce9e8be48b7691c9296c4e710a67'
 		'f602390385890dab14f68e5e0a8cac2d'
 		'ac6ba60be0a1cb7fc965d1a105e431d5')
 validpgpkeys=()
@@ -55,6 +61,10 @@ prepare() {
 		fi
 		# fix the makefile forcing a static binary
 		sed -i "s/-s -static//" Makefile.linux
+
+	# python-apache-libcloud
+		cd ${srcdir}/apache-libcloud-0.17.0
+		patch -Np0 -i ../libcloud.patch
 }
 
 build() {
@@ -117,6 +127,11 @@ package() {
 		install -Dm644 ./resources/images/gns3_icon_256x256.png "${pkgdir}/usr/share/pixmaps/gns3.png"
 		install -Dm644 ./LICENSE "${pkgdir}/usr/share/licenses/gns3-gui/LICENSE"
 	
+	# gns3-converter
+		cd "${srcdir}/gns3-converter-1.2.3"
+		python setup.py install --root="${pkgdir}" --optimize=1
+		install -Dm644 COPYING "${pkgdir}/usr/share/licenses/gns3-converter/LICENSE"	
+
 	# dynamips
 		cd "${srcdir}/dynamips-0.2.14/build"
 		make DESTDIR="${pkgdir}" install
@@ -132,4 +147,8 @@ package() {
 		mv vpcs "${pkgdir}/usr/bin/"
 		install -D -m 0644 "${srcdir}/vpcs-0.6/readme.txt" "${pkgdir}/usr/share/vpcs/readme.txt"
 		install -D -m 0644 "${srcdir}/vpcs-0.6/COPYING" "${pkgdir}/usr/share/licenses/vpcs/COPYING"
+
+	# python-apache-libcloud
+		cd ${srcdir}/apache-libcloud-0.17.0
+		python setup.py install --root=${pkgdir} --optimize=1
 }

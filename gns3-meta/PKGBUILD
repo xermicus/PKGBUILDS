@@ -2,15 +2,15 @@
 pkgname=gns3-meta
 pkgver=1.3.1
 pkgrel=1
-pkgdesc="Installs the whole GNS3 environment (gns3-server, gns3-gui, dynamips, iouyap and vpcs). GNS3 is a Graphical Network Simulator."
+pkgdesc="Installs *everything* you need to get started with GNS3 (this includes gns3-server, gns3-gui, dynamips, iouyap and dependencies for python)."
 arch=(x86_64)
 url="http://www-gns3.com"
 license=('GPL')
 groups=()
 depends=('python3' 'python-jsonschema' 'python-dateutil' 'python-jinja' 'apache-libcloud' 'python-paramiko' 'python-requests' 'python-pyqt4')
-makedepends=('unzip' 'python-setuptools' 'python-pip' 'cmake' 'flex' 'bison')
+makedepends=('python-setuptools' 'python-pip' 'cmake' 'flex' 'bison')
 optdepends=('wireshark-gtk' 'virtualbox-gtk' 'xterm')
-provides=('gns3-server' 'gns3-gui' 'dynamips' 'iouyap' 'vpcs')
+provides=('gns3-server' 'gns3-gui' 'dynamips' 'iouyap' 'vpcs' 'python-raven' python-aiohttp' 'python-netifaces')
 conflicts=()
 replaces=('gns3-git')
 backup=()
@@ -18,11 +18,90 @@ options=()
 install=
 changelog=
 source=("dynamips-0.2.14.zip"
-        "gns3-gui-1.3.1.zip"
-        "gns3-server-1.3.1.zip"
-        "iouyap-0.95.zip"
-        "py3k-netifaces-master.zip"
-        "vpcs-0.6.zip")
-noextract=()
-md5sums=()
-validpgpkeys=('0b60dd335e1562a6841014a54df2b090' '4f67fbc60828e69a948b0df0a5778afb' 'b2745a041f225803358c0cc88b44e521' 'd61805b8013991d479c172e7ed622eb3' '5f145b42aa1d39713714a0cabb4bf6de' 'cbe561a44cad71018477fab8c0f942c2')
+	"gns3-gui-1.3.1.zip"
+	"gns3-server-1.3.1.zip"
+	"iouyap-0.95.zip"
+	"vpcs-0.6.zip"
+	"iniparser-master.tar.gz"
+	"aiohttp-0.15.1.tar.gz"
+	"netifaces-0.10.4.tar.gz"
+	"raven-5.2.0.tar.gz")
+md5sums=(	'0b60dd335e1562a6841014a54df2b090'
+		'4f67fbc60828e69a948b0df0a5778afb'
+		'b2745a041f225803358c0cc88b44e521'
+		'd61805b8013991d479c172e7ed622eb3'
+		'cbe561a44cad71018477fab8c0f942c2'
+		'bc38d61a9b01ead6d0abaa543bda135b'
+		'd8034fcee1e9f286e811b77055688474'
+		'36da76e2cfadd24cc7510c2c0012eb1e'
+		'a9964f0ddf01dda0f426b215d37ee9b5')
+validpgpkeys=()
+
+prepare() {
+	# iouyap
+	cd $srcdir/iouyap-0.95/
+	bison -ydv netmap_parse.y
+	flex netmap_scan.l
+
+	# vpcs
+	cd $srcdir/vpcs-0.6/
+	# fix the makefile hardcoding i386
+	if test "$CARCH" == x86_64; then
+		sed -i "s/i386/x86_64/" Makefile.linux
+	fi
+	# fix the makefile forcing a static binary
+	sed -i "s/-s -static//" Makefile.linux
+	}
+
+build() {
+	# iniparser
+	cd $srcdir/iniparser-master
+	make
+
+	# dynamips
+	cd $srcdir/
+	./configure --prefix=/usr
+	make
+
+	# iouyap
+
+
+	# vpcs
+	
+}
+
+#check() {
+#	cd "$pkgname-$pkgver"
+#	make -k check
+#}
+
+package() {
+	# python-netifaces
+		cd "${srcdir}/netifaces-0.10.4"
+	  	python setup.py install --root "${pkgdir}"
+  		install -Dm644 README.rst "${pkgdir}/usr/share/licenses/python-netifaces/LICENSE"
+
+	# python-raven
+		cd "${srcdir}/raven-5.2.0"
+		python setup.py install --root="${pkgdir}/" --optimize=1
+		install -Dm0664 "${srcdir}/raven-5.2.0/LICENSE" "${pkgdir}/usr/share/licenses/python-raven/LICENSE"
+		
+	# python-aiohttp
+		cd "$srcdir/aiohttp-0.15.1"
+		python setup.py install --root="$pkgdir" --optimize=1 || return 1
+
+	# gns3-server
+
+	# gns3-gui
+
+	# dynamips
+
+	# iouyap
+
+	# vpcs
+
+
+	cd "$pkgname-$pkgver"
+	make DESTDIR="$pkgdir/" install
+}
+

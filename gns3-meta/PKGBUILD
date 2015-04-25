@@ -1,4 +1,4 @@
-# Maintainer: Cyrill Leutwiler <bigcyrill@hotmail.com>
+# Maintainer: Cyrill Leutwiler <cyrill.leutwiler at hotmail dot com>
 
 pkgname=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud')
 pkgbase=gns3-meta
@@ -71,13 +71,17 @@ build() {
                 make
 
         # dynamips
-                cd "$srcdir/dynamips-0.2.14"
+		if test "$CARCH" == x86_64; then
+    			export DYNAMIPS_ARCH=amd64
+  		fi
+                
+		cd "$srcdir/dynamips-0.2.14"
                 if [ -d "build" ]; then
-                  rm -R build
+                	rm -R build
                 fi
                 mkdir build
                 cd build
-                cmake ..
+                cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
                 make
 
         # iouyap
@@ -104,7 +108,7 @@ package_gns3-server() {
 	pkgdesc="GNS3 backend"
 	arch=(x86_64)
 	url="http://www.gns3.com"
-	license=(GPL3)
+	license=('GPL3')
 	depends=('python3' 'python-jsonschema' 'python-dateutil' 'python-jinja' 'python-raven')
 
 	cd "$srcdir/gns3-server-1.3.1"
@@ -119,8 +123,8 @@ package_gns3-gui() {
         pkgdesc="GNS3 frontend"
         arch=(x86_64)
         url="http://www.gns3.com"
-        license=(GPL3)
-	depends=('python3' 'python-paramiko' 'python-requests' 'python-raven')
+        license=('GPL3')
+	depends=('python3' 'python-paramiko' 'python-requests' 'python-raven' 'python-sip' 'python-pyqt4')
 
 	cd "${srcdir}/gns3-gui-1.3.1"
         python setup.py install --root="${pkgdir}" --optimize=1
@@ -136,7 +140,7 @@ package_gns3-converter() {
         pkgdesc="GNS3 Topology converter"
         arch=(x86_64)
         url="https://github.com/dlintott/gns3-converter"
-        license=(GPL3)
+        license=('GPL3')
 	depends=('python3' 'python-configobj' 'python-cx_freeze')
 
 	cd "${srcdir}/gns3-converter-1.2.3"
@@ -150,16 +154,12 @@ package_dynamips() {
         pkgdesc="CISCO Router emulator"
         arch=(x86_64)
         url="http://www.gns3.net/dynamips"
-        license=(GPL2)
+        license=('GPL2')
+	depends=('libpcap' 'util-linux' 'elfutils')
 
 	cd "${srcdir}/dynamips-0.2.14/build"
         make DESTDIR="${pkgdir}" install
         install -Dm644 "${srcdir}/dynamips-0.2.14/COPYING" "${pkgdir}/usr/share/licenses/dynamips/COPYING"
-
-        mkdir "${pkgdir}/usr/local/man"
-        mv "${pkgdir}/usr/local/share/man/man1" "${pkgdir}/usr/local/man"
-        mv "${pkgdir}/usr/local/share/man/man7" "${pkgdir}/usr/local/man"
-        rmdir "${pkgdir}/usr/local/share/man"
 }
 
 package_iouyap() {
@@ -168,11 +168,11 @@ package_iouyap() {
         pkgdesc="Bridge IOU to UDP, TAP and Ethernet"
         arch=(x86_64)
         url="https://github.com/GNS3/iouyap"
-        license=(GPL3)
+        license=('GPL3')
 
-	mkdir "${pkgdir}/usr" "${pkgdir}/usr/local" "${pkgdir}/usr/local/bin"
+	mkdir "${pkgdir}/usr" "${pkgdir}/usr/bin"
 	cd "${srcdir}/iouyap-0.95"
-	mv iouyap "${pkgdir}/usr/local/bin"
+	mv iouyap "${pkgdir}/usr/bin"
         install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
 
@@ -182,7 +182,7 @@ package_vpcs() {
         pkgdesc="Simulates up to 9 computers for ping/traceroute purposes."
         arch=(x86_64)
         url="http://vpcs.sourceforge.net/"
-        license=(BSD)
+        license=('BSD')
 
 	mkdir "${pkgdir}/usr" "${pkgdir}/usr/bin"
 	cd "$srcdir/vpcs-0.6/src"
@@ -197,7 +197,7 @@ package_python-raven() {
         pkgdesc="Python client for Sentry."
         arch=(x86_64)
         url="http://pypi.python.org/pypi/raven"
-        license=(BSD)
+	license=('BSD')
 
 	cd "${srcdir}/raven-5.2.0"
         python setup.py install --root="${pkgdir}/" --optimize=1
@@ -210,7 +210,7 @@ package_python-aiohttp() {
         pkgdesc="http client/server for asyncio"
         arch=(x86_64)
         url="http://pypi.python.org/pypi/aiohttp"
-        license=(Apache)
+        license=('Apache')
 
 	cd "$srcdir/aiohttp-0.15.1"
         python setup.py install --root="${pkgdir}" --optimize=1 || return 1
@@ -222,7 +222,7 @@ package_python-netifaces() {
         pkgdesc="Portable module to access network interface information in Python"
         arch=(x86_64)
         url="http://alastairs-place.net/netifaces/"
-        license=(MIT)
+        license=('MIT')
 
 	cd "${srcdir}/netifaces-0.10.4"
         python setup.py install --root "${pkgdir}"
@@ -235,9 +235,8 @@ package_python-apache-libcloud() {
         pkgdesc="A standard Python library that abstracts away differences among multiple cloud provider APIs."
         arch=(x86_64)
         url="https://pypi.python.org/pypi/apache-libcloud"
-        license=("Apache License 2")
+        license=('Apache License 2')
 
 	cd ${srcdir}/apache-libcloud-0.17.0
         python setup.py install --root=${pkgdir} --optimize=1
-	
 }

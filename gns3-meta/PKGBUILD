@@ -1,158 +1,243 @@
 # Maintainer: Cyrill Leutwiler <bigcyrill@hotmail.com>
-# This is a working PKGBUILD but its developement is not finished yet!
-# ToDo: Split the package up and do more testing
 
-pkgname=gns3-meta
+pkgname=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud')
+pkgbase=gns3-meta
 pkgver=1.3.1
 pkgrel=1
-pkgdesc="This metapackage installs *everything* you need to get started with GNS3. GNS3 is a Graphical Network Simulator"
+pkgdesc="This metapackage provides *everything* you need to get started with GNS3. GNS3 is a Graphical Network Simulator"
 arch=(x86_64)
 url="http://www.gns3.com"
 license=('GPL')
-groups=()
-depends=('python3' 'python-jsonschema' 'python-dateutil' 'python-jinja' 'python-paramiko' 'python-requests' 'python-pyqt4' 'python-configobj' 'python-cx_freeze')
-makedepends=('python-setuptools' 'python-pip' 'cmake' 'flex' 'bison')
-optdepends=('wireshark-gtk' 'virtualbox-gtk' 'xterm')
+depends=()
+makedepends=('python-setuptools' 'cmake' 'flex' 'bison')
+checkdepends=()
+optdepends=('wireshark-gtk: Analyze Networktraffice inside GNS3' 'virtualbox-gtk: Run virtual machines inside GNS3' 'xterm: Connect to your virtual devices via console')
 provides=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud')
-conflicts=()
+conflicts=('gns3-git')
 replaces=('gns3-git')
-backup=()
-options=()
-install=
 changelog=
 source=("dynamips-0.2.14.zip"
-	"gns3-gui-1.3.1.zip"
-	"gns3-server-1.3.1.zip"
-	"iouyap-0.95.zip"
-	"vpcs-0.6.zip"
-	"iniparser-master.tar.gz"
-	"aiohttp-0.15.1.tar.gz"
-	"netifaces-0.10.4.tar.gz"
-	"raven-5.2.0.tar.gz"
-	"gns3-converter-1.2.3.tar.gz"
-	"apache-libcloud-0.17.0.tar.gz"
-	"libcloud.patch"
-	"gns3-server@.service"
-	"gns3.desktop")
-md5sums=(	'0b60dd335e1562a6841014a54df2b090'
-		'4f67fbc60828e69a948b0df0a5778afb'
-		'b2745a041f225803358c0cc88b44e521'
-		'd61805b8013991d479c172e7ed622eb3'
-		'cbe561a44cad71018477fab8c0f942c2'
-		'bc38d61a9b01ead6d0abaa543bda135b'
-		'd8034fcee1e9f286e811b77055688474'
-		'36da76e2cfadd24cc7510c2c0012eb1e'
-		'a9964f0ddf01dda0f426b215d37ee9b5'
-		'ca83b0fbad203ab92533bacaf3596c20'
-		'a63650261971dc82c5a6d763a2153881'
-		'b210ce9e8be48b7691c9296c4e710a67'
-		'f602390385890dab14f68e5e0a8cac2d'
-		'ac6ba60be0a1cb7fc965d1a105e431d5')
-validpgpkeys=()
+        "gns3-gui-1.3.1.zip"
+        "gns3-server-1.3.1.zip"
+        "iouyap-0.95.zip"
+        "vpcs-0.6.zip"
+        "iniparser-master.tar.gz"
+        "aiohttp-0.15.1.tar.gz"
+        "netifaces-0.10.4.tar.gz"
+        "raven-5.2.0.tar.gz"
+        "gns3-converter-1.2.3.tar.gz"
+        "apache-libcloud-0.17.0.tar.gz"
+        "libcloud.patch"
+        "gns3-server@.service"
+        "gns3.desktop")
+md5sums=(       '0b60dd335e1562a6841014a54df2b090'
+                '4f67fbc60828e69a948b0df0a5778afb'
+                'b2745a041f225803358c0cc88b44e521'
+                'd61805b8013991d479c172e7ed622eb3'
+                'cbe561a44cad71018477fab8c0f942c2'
+                'bc38d61a9b01ead6d0abaa543bda135b'
+                'd8034fcee1e9f286e811b77055688474'
+                '36da76e2cfadd24cc7510c2c0012eb1e'
+                'a9964f0ddf01dda0f426b215d37ee9b5'
+                'ca83b0fbad203ab92533bacaf3596c20'
+                'a63650261971dc82c5a6d763a2153881'
+                'b210ce9e8be48b7691c9296c4e710a67'
+                'f602390385890dab14f68e5e0a8cac2d'
+                'ac6ba60be0a1cb7fc965d1a105e431d5')
 
 prepare() {
-	# iouyap
-		cd "$srcdir/iouyap-0.95/"
-		bison -ydv netmap_parse.y
-		flex netmap_scan.l
+        # iouyap
+                cd "$srcdir/iouyap-0.95/"
+                bison -ydv netmap_parse.y
+                flex netmap_scan.l
 
-	# vpcs
-		cd "$srcdir/vpcs-0.6/src"
-		# fix the makefile hardcoding i386
-		if test "$CARCH" == x86_64; then
-			sed -i "s/i386/x86_64/" Makefile.linux
-		fi
-		# fix the makefile forcing a static binary
-		sed -i "s/-s -static//" Makefile.linux
+        # vpcs
+                cd "$srcdir/vpcs-0.6/src"
+                # fix the makefile hardcoding i386
+                if test "$CARCH" == x86_64; then
+                        sed -i "s/i386/x86_64/" Makefile.linux
+                fi
+                # fix the makefile forcing a static binary
+                sed -i "s/-s -static//" Makefile.linux
 
-	# python-apache-libcloud
-		cd ${srcdir}/apache-libcloud-0.17.0
-		patch -Np0 -i ../libcloud.patch
+        # python-apache-libcloud
+                cd ${srcdir}/apache-libcloud-0.17.0
+                patch -Np0 -i ../libcloud.patch
 }
 
 build() {
-	# iniparser
-		cd "$srcdir/iniparser-master"
-		make
+        # iniparser
+                cd "$srcdir/iniparser-master"
+                make
 
-	# dynamips
-		cd "$srcdir/dynamips-0.2.14"
-		if [ -d "build" ]; then
-		  rm -R build
-		fi
-		mkdir build
-		cd build
-		cmake ..
-		make
+        # dynamips
+                cd "$srcdir/dynamips-0.2.14"
+                if [ -d "build" ]; then
+                  rm -R build
+                fi
+                mkdir build
+                cd build
+                cmake ..
+                make
 
-	# iouyap
-		cd "$srcdir/iouyap-0.95"
-		bison -ydv netmap_parse.y
-		flex netmap_scan.l
+        # iouyap
+                cd "$srcdir/iouyap-0.95"
+                bison -ydv netmap_parse.y
+                flex netmap_scan.l
 		gcc -Wall *.c -I "${srcdir}/iniparser-master/src" -L "${srcdir}/iniparser-master" -o iouyap -liniparser -lpthread
-		strip --strip-unneeded iouyap
+                strip --strip-unneeded iouyap
 
-	# vpcs
-		cd "$srcdir/vpcs-0.6/src"
-		make -f ./Makefile.linux
+        # vpcs
+                cd "$srcdir/vpcs-0.6/src"
+                make -f ./Makefile.linux
+}                                      
+
+check() {
+	# iniparser
+                cd "$srcdir/iniparser-master"
+                make -k check
 }
 
-#check() {
-#	cd "$pkgname-$pkgver"
-#	make -k check
-#}
+package_gns3-server() {
+	pkgver=1.3.1
+	pkgrel=1
+	pkgdesc="GNS3 backend"
+	arch=(x86_64)
+	url="http://www.gns3.com"
+	license=(GPL3)
+	depends=('python3' 'python-jsonschema' 'python-dateutil' 'python-jinja' 'python-raven')
 
-package() {
-	# python-netifaces
-		cd "${srcdir}/netifaces-0.10.4"
-	  	python setup.py install --root "${pkgdir}"
-  		install -Dm644 README.rst "${pkgdir}/usr/share/licenses/python-netifaces/LICENSE"
+	cd "$srcdir/gns3-server-1.3.1"
+        python setup.py install --root="${pkgdir}" --optimize=1
+        install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+        install -Dm644 "${srcdir}/gns3-server@.service" "${pkgdir}/usr/lib/systemd/system/gns3-server@.service"
+}
 
-	# python-raven
-		cd "${srcdir}/raven-5.2.0"
-		python setup.py install --root="${pkgdir}/" --optimize=1
-		install -Dm0664 "${srcdir}/raven-5.2.0/LICENSE" "${pkgdir}/usr/share/licenses/python-raven/LICENSE"
-		
-	# python-aiohttp
-		cd "$srcdir/aiohttp-0.15.1"
-		python setup.py install --root="${pkgdir}" --optimize=1 || return 1
+package_gns3-gui() {
+	pkgver=1.3.1
+        pkgrel=1
+        pkgdesc="GNS3 frontend"
+        arch=(x86_64)
+        url="http://www.gns3.com"
+        license=(GPL3)
+	depends=('python3' 'python-paramiko' 'python-requests' 'python-raven')
 
-	# gns3-server
-		cd "$srcdir/gns3-server-1.3.1"
-		python setup.py install --root="${pkgdir}" --optimize=1
-		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/gns3-server/LICENSE"
-		install -Dm644 "${srcdir}/gns3-server@.service" "${pkgdir}/usr/lib/systemd/system/gns3-server@.service"
+	cd "${srcdir}/gns3-gui-1.3.1"
+        python setup.py install --root="${pkgdir}" --optimize=1
+        install -Dm644 "${srcdir}/gns3.desktop" "${pkgdir}/usr/share/applications/gns3.desktop"
+        install -Dm644 ./resources/images/gns3_icon_256x256.png "${pkgdir}/usr/share/pixmaps/gns3.png"
+        install -Dm644 ./LICENSE "${pkgdir}/usr/share/licenses/gns3-gui/LICENSE"
 
-	# gns3-gui
-		cd "${srcdir}/gns3-gui-1.3.1"
-		python setup.py install --root="${pkgdir}" --optimize=1
-		install -Dm644 "${srcdir}/gns3.desktop" "${pkgdir}/usr/share/applications/gns3.desktop"
-		install -Dm644 ./resources/images/gns3_icon_256x256.png "${pkgdir}/usr/share/pixmaps/gns3.png"
-		install -Dm644 ./LICENSE "${pkgdir}/usr/share/licenses/gns3-gui/LICENSE"
+}
+
+package_gns3-converter() {
+        pkgver=1.2.3
+        pkgrel=1
+        pkgdesc="GNS3 Topology converter"
+        arch=(x86_64)
+        url="https://github.com/dlintott/gns3-converter"
+        license=(GPL3)
+	depends=('python3' 'python-configobj' 'python-cx_freeze')
+
+	cd "${srcdir}/gns3-converter-1.2.3"
+        python setup.py install --root="${pkgdir}" --optimize=1
+        install -Dm644 COPYING "${pkgdir}/usr/share/licenses/gns3-converter/LICENSE" 
+}
+
+package_dynamips() {
+	pkgver=0.2.14
+        pkgrel=1
+        pkgdesc="CISCO Router emulator"
+        arch=(x86_64)
+        url="http://www.gns3.net/dynamips"
+        license=(GPL2)
+
+	cd "${srcdir}/dynamips-0.2.14/build"
+        make DESTDIR="${pkgdir}" install
+        install -Dm644 "${srcdir}/dynamips-0.2.14/COPYING" "${pkgdir}/usr/share/licenses/dynamips/COPYING"
+
+        mkdir "${pkgdir}/usr/local/man"
+        mv "${pkgdir}/usr/local/share/man/man1" "${pkgdir}/usr/local/man"
+        mv "${pkgdir}/usr/local/share/man/man7" "${pkgdir}/usr/local/man"
+        rmdir "${pkgdir}/usr/local/share/man"
+}
+
+package_iouyap() {
+	pkgver=0.95
+        pkgrel=1
+        pkgdesc="Bridge IOU to UDP, TAP and Ethernet"
+        arch=(x86_64)
+        url="https://github.com/GNS3/iouyap"
+        license=(GPL3)
+
+	mkdir "${pkgdir}/usr" "${pkgdir}/usr/local" "${pkgdir}/usr/local/bin"
+	cd "${srcdir}/iouyap-0.95"
+	mv iouyap "${pkgdir}/usr/local/bin"
+        install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+package_vpcs() {
+	pkgver=0.6
+        pkgrel=1
+        pkgdesc="Simulates up to 9 computers for ping/traceroute purposes."
+        arch=(x86_64)
+        url="http://vpcs.sourceforge.net/"
+        license=(BSD)
+
+	mkdir "${pkgdir}/usr" "${pkgdir}/usr/bin"
+	cd "$srcdir/vpcs-0.6/src"
+	mv vpcs "${pkgdir}/usr/bin/"
+        install -D -m 0644 "${srcdir}/vpcs-0.6/readme.txt" "${pkgdir}/usr/share/vpcs/readme.txt"
+        install -D -m 0644 "${srcdir}/vpcs-0.6/COPYING" "${pkgdir}/usr/share/licenses/vpcs/COPYING"
+}
+
+package_python-raven() {
+	pkgver=5.2.0
+        pkgrel=1
+        pkgdesc="Python client for Sentry."
+        arch=(x86_64)
+        url="http://pypi.python.org/pypi/raven"
+        license=(BSD)
+
+	cd "${srcdir}/raven-5.2.0"
+        python setup.py install --root="${pkgdir}/" --optimize=1
+        install -Dm0664 "${srcdir}/raven-5.2.0/LICENSE" "${pkgdir}/usr/share/licenses/python-raven/LICENSE"
+}
+
+package_python-aiohttp() {
+	pkgver=0.15.1
+        pkgrel=1
+        pkgdesc="http client/server for asyncio"
+        arch=(x86_64)
+        url="http://pypi.python.org/pypi/aiohttp"
+        license=(Apache)
+
+	cd "$srcdir/aiohttp-0.15.1"
+        python setup.py install --root="${pkgdir}" --optimize=1 || return 1
+}
+
+package_python-netifaces() {
+	pkgver=0.4
+        pkgrel=1
+        pkgdesc="Portable module to access network interface information in Python"
+        arch=(x86_64)
+        url="http://alastairs-place.net/netifaces/"
+        license=(MIT)
+
+	cd "${srcdir}/netifaces-0.10.4"
+        python setup.py install --root "${pkgdir}"
+        install -Dm644 README.rst "${pkgdir}/usr/share/licenses/python-netifaces/LICENSE"
+}
+
+package_python-apache-libcloud() {
+	pkgver=0.17.0
+        pkgrel=1
+        pkgdesc="A standard Python library that abstracts away differences among multiple cloud provider APIs."
+        arch=(x86_64)
+        url="https://pypi.python.org/pypi/apache-libcloud"
+        license=("Apache License 2")
+
+	cd ${srcdir}/apache-libcloud-0.17.0
+        python setup.py install --root=${pkgdir} --optimize=1
 	
-	# gns3-converter
-		cd "${srcdir}/gns3-converter-1.2.3"
-		python setup.py install --root="${pkgdir}" --optimize=1
-		install -Dm644 COPYING "${pkgdir}/usr/share/licenses/gns3-converter/LICENSE"	
-
-	# dynamips
-		cd "${srcdir}/dynamips-0.2.14/build"
-		make DESTDIR="${pkgdir}" install
-		install -Dm644 "${srcdir}/dynamips-0.2.14/COPYING" "${pkgdir}/usr/share/licenses/dynamips/COPYING"
-
-	# iouyap
-		cd "${srcdir}/iouyap-0.95"
-		mv iouyap "${pkgdir}/usr/local/bin"
-		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/iouyap/LICENSE"
-
-	# vpcs
-		cd "$srcdir/vpcs-0.6/src"
-		mv vpcs "${pkgdir}/usr/bin/"
-		install -D -m 0644 "${srcdir}/vpcs-0.6/readme.txt" "${pkgdir}/usr/share/vpcs/readme.txt"
-		install -D -m 0644 "${srcdir}/vpcs-0.6/COPYING" "${pkgdir}/usr/share/licenses/vpcs/COPYING"
-
-	# python-apache-libcloud
-		cd ${srcdir}/apache-libcloud-0.17.0
-		python setup.py install --root=${pkgdir} --optimize=1
 }
-

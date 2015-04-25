@@ -1,4 +1,4 @@
-# Maintainer: Cyrill Leutwiler <cyrill.leutwiler at hotmail dot com>
+# Maintainer: Cyrill Leutwiler <bigcyrill at hotmail dot com>
 
 pkgname=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud')
 pkgbase=gns3-meta

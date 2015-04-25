@@ -5,7 +5,7 @@ pkgbase=gns3-meta
 pkgver=1.3.1
 pkgrel=1
 pkgdesc="This metapackage provides *everything* you need to get started with GNS3. GNS3 is a Graphical Network Simulator"
-arch=(x86_64)
+arch=('i686' 'x86_64')
 url="http://www.gns3.com"
 license=('GPL')
 depends=()
@@ -63,6 +63,13 @@ prepare() {
         # python-apache-libcloud
                 cd ${srcdir}/apache-libcloud-0.17.0
                 patch -Np0 -i ../libcloud.patch
+
+	# dynamips
+		cd "$srcdir/dynamips-0.2.14"
+		if [ -d "build" ]; then
+                        rm -R build
+                fi
+                mkdir build
 }
 
 build() {
@@ -74,20 +81,12 @@ build() {
 		if test "$CARCH" == x86_64; then
     			export DYNAMIPS_ARCH=amd64
   		fi
-                
-		cd "$srcdir/dynamips-0.2.14"
-                if [ -d "build" ]; then
-                	rm -R build
-                fi
-                mkdir build
-                cd build
+		cd "$srcdir/dynamips-0.2.14/build"
                 cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
                 make
 
         # iouyap
                 cd "$srcdir/iouyap-0.95"
-                bison -ydv netmap_parse.y
-                flex netmap_scan.l
 		gcc -Wall *.c -I "${srcdir}/iniparser-master/src" -L "${srcdir}/iniparser-master" -o iouyap -liniparser -lpthread
                 strip --strip-unneeded iouyap
 

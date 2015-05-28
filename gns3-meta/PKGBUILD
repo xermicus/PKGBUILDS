@@ -17,7 +17,6 @@ optdepends=(	'wireshark-gtk: Analyze Networktraffice inside GNS3'
 		'qemu: Used by GNS3 to run Cisco ASA, PIX and IDS')
 provides=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud')
 conflicts=('gns3-git')
-replaces=('gns3-git')
 changelog=
 source=("gns3-server-${pkgver}.tar.gz::https://github.com/GNS3/gns3-server/archive/v${pkgver}.tar.gz"
         "gns3-gui-${pkver}.tar.gz::https://github.com/GNS3/gns3-gui/archive/v${pkgver}.tar.gz"

@@ -90,7 +90,9 @@ build() {
 
         # iouyap
                 cd "$srcdir/iouyap-0.95"
-		gcc -Wall *.c -I "${srcdir}/iniparser-4.0" -L "${srcdir}/iniparser-4.0" -o iouyap -liniparser -lpthread
+		#mkdir "$pkgdir/usr/include"
+		#cp "iniparser.h" "$pkgdir/usr/include"
+		gcc -Wall *.c -I "${srcdir}/iniparser-4.0/src" -L "${srcdir}/iniparser-4.0" -o iouyap -liniparser -lpthread
                 strip --strip-unneeded iouyap
 
         # vpcs

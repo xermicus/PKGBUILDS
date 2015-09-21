@@ -15,7 +15,7 @@ optdepends=(	'wireshark-gtk: Analyze Networktraffice inside GNS3'
 		'virtualbox-gtk: Run virtual machines inside GNS3'
 		'xterm: Connect to your virtual devices via console'
 		'qemu: Used by GNS3 to run Cisco ASA, PIX and IDS')
-provides=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud')
+provides=('gns3-server' 'gns3-gui' 'gns3-converter' 'dynamips' 'iouyap' 'vpcs' 'python-raven' 'python-aiohttp' 'python-netifaces' 'python-apache-libcloud' 'python-docker-py' 'gns3-netifaces')
 conflicts=('gns3-git')
 replaces=('gns3-git')
 changelog=
@@ -31,7 +31,9 @@ source=("gns3-server-${pkgver}.tar.gz::https://github.com/GNS3/gns3-server/archi
         "https://github.com/dlintott/gns3-converter/archive/v1.2.3.tar.gz"
         "https://pypi.python.org/packages/source/a/apache-libcloud/apache-libcloud-0.17.0.tar.gz"
         "https://issues.apache.org/jira/secure/attachment/12686289/libcloud.patch"
-        "gns3-server@.service"
+        "https://github.com/docker/docker-py/archive/1.4.0.tar.gz"
+	"https://pypi.python.org/packages/source/g/gns3-netifaces/gns3-netifaces-0.10.4.1.tar.gz"
+	"gns3-server@.service"
         "gns3.desktop")
 md5sums=(       '565e68f8feff55d6abb506ac97a649d7'
                 'df5b50f0d901b14701df829ca1951a2a'
@@ -45,7 +47,9 @@ md5sums=(       '565e68f8feff55d6abb506ac97a649d7'
                 'ca83b0fbad203ab92533bacaf3596c20'
                 'a63650261971dc82c5a6d763a2153881'
                 'b210ce9e8be48b7691c9296c4e710a67'
-                'f602390385890dab14f68e5e0a8cac2d'
+		'6719a095844f6cf1a95c7a87492eca0b'
+                'b0d7847d5ceeca95dbe31d5c1df86468'
+		'f602390385890dab14f68e5e0a8cac2d'
                 'ac6ba60be0a1cb7fc965d1a105e431d5')
 
 prepare() {
@@ -158,4 +162,12 @@ package() {
 	# python-apache-libcloud
 	cd ${srcdir}/apache-libcloud-0.17.0
         python setup.py install --root=${pkgdir} --optimize=1
+
+	# python-docker-py
+	cd ${srcdir}/docker-py-1.4.0
+	python setup.py install --root="${pkgdir}" --optimize=1
+
+	# gns3-netifaces
+	cd ${srcdir}/gns3-netifaces-0.10.4.1
+	python setup.py install --root="${pkgdir}" --optimize=1
 }

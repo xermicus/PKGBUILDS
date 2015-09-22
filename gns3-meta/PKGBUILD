@@ -33,6 +33,7 @@ source=("gns3-server-${pkgver}.tar.gz::https://github.com/GNS3/gns3-server/archi
         "https://issues.apache.org/jira/secure/attachment/12686289/libcloud.patch"
         "https://github.com/docker/docker-py/archive/1.4.0.tar.gz"
 	"https://pypi.python.org/packages/source/g/gns3-netifaces/gns3-netifaces-0.10.4.1.tar.gz"
+	"https://pypi.python.org/packages/source/w/websocket-client/websocket_client-0.32.0.tar.gz"
 	"gns3-server@.service"
         "gns3.desktop")
 md5sums=(       '565e68f8feff55d6abb506ac97a649d7'
@@ -49,6 +50,7 @@ md5sums=(       '565e68f8feff55d6abb506ac97a649d7'
                 'b210ce9e8be48b7691c9296c4e710a67'
 		'6719a095844f6cf1a95c7a87492eca0b'
                 'b0d7847d5ceeca95dbe31d5c1df86468'
+		'b07a897511a3c585251fe2ea85a9d9d9'
 		'f602390385890dab14f68e5e0a8cac2d'
                 'ac6ba60be0a1cb7fc965d1a105e431d5')
 
@@ -170,4 +172,9 @@ package() {
 	# gns3-netifaces
 	cd ${srcdir}/gns3-netifaces-0.10.4.1
 	python setup.py install --root="${pkgdir}" --optimize=1
+
+	# python websocket-client
+	cd ${srcdir}/websocket_client-0.32.0
+	python setup.py install --root="${pkgdir}" --optimize=1
+
 }
